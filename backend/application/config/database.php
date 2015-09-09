@@ -75,10 +75,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => '',
-	'password' => '',
-	'database' => '',
+	'hostname' => getenv('SMARTT_DB_HOST'),
+	'username' => getenv('SMARTT_DB_USER'),
+	'password' => getenv('SMARTT_DB_PASS'),
+	'database' => getenv('SMARTT_DB_NAME'),
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
