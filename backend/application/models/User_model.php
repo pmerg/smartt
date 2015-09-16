@@ -6,7 +6,7 @@
  * Time: 11:05 πμ
  */
 
-class Users_model extends CI_Model
+class User_model extends CI_Model
 {
 
     public function __construct()

@@ -7,6 +7,12 @@
  * Time: 10:51 πμ
  * @author   Tsadimas anargyros <tsadimas@gmail.com>
  */
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+// This can be removed if you use __autoload() in config.php OR use Modular Extensions
+require APPPATH . '/libraries/REST_Controller.php';
+
 class User extends REST_Controller
 {
 
@@ -57,7 +63,7 @@ class User extends REST_Controller
         }
 
 
-        if ($this->users_model->check_user_exists($email)) {
+        if ($this->user_model->check_user_exists($email)) {
             $message = array('error' => 'User already registered');
             $this->response([
                 'status' => FALSE,
@@ -66,7 +72,7 @@ class User extends REST_Controller
         }
 
 
-        $user_id = $this->users_model->save_user($email, $this->post('device_id'), $this->post('password'));
+        $user_id = $this->user_model->save_user($email, $this->post('device_id'), $this->post('password'));
 
         if (!$user_id) {
             $message = array('error' => 'DB error, user not inserted!', 'success' => 'false');
@@ -93,5 +99,62 @@ class User extends REST_Controller
         ], REST_Controller::HTTP_OK);
     }
 
+    function login_post()
+    {
+        if ((!$this->post('email') || !$this->post('device_id') || !$this->post('password'))) {
+            $message = array('success' => 'false');
+            $this->response($message, 400);
+        }
+
+        $email = $this->post('email');
+
+
+        // Remove all illegal characters from email
+        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            log_message('info', "$email is a valid email address");
+        } else {
+            log_message('info', "$email is not a valid email address");
+            $message = array('error' => 'Not accepted email', 'success' => 'false');
+            $this->response($message, 400);
+        }
+
+
+        if ($this->user_model->check_user_exists($email)) {
+
+            $dev_id = $this->user_model->check_user($email, $this->post('password'));
+            $user_id=$this->user_model->get_id_from_email($email);
+            if (empty($dev_id)) {
+                $message = array('message' => 'User not authorized', 'success' => 'false');
+                $this->response($message, 403);
+            }
+            if ($dev_id == $this->post('device_id')) {
+
+                $message = array('message' => 'User login ok', 'success' => 'true', 'user_id'=>$user_id);
+                $this->response($message, 200);
+            } else {
+                $this->user_model->change_device_id($email, $this->post('device_id'));
+                $message = array('message' => 'Device id changed', 'success' => 'true', 'user_id'=>$user_id);
+                $this->response($message, 200);
+            }
+
+        }
+
+
+        $user_id = $this->user_model->save_user($email, $this->post('device_id'), $this->post('password'));
+
+        if (!$user_id) {
+            $message = array('error' => 'DB error, user not inserted!', 'success' => 'false');
+            $this->response($message, 409);
+        }
+
+        log_message('info', 'db returned userid ' . $user_id);
+
+
+        $message = array('id' => $user_id, 'device_id' => $this->post('device_id'), 'email' => $this->post('email'), 'message' => 'user registered!', 'success' => 'true');
+
+        $this->response($message, 200);
+    }
 
 }
