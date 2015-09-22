@@ -131,11 +131,11 @@ class User extends REST_Controller
             }
             if ($dev_id == $this->post('device_id')) {
 
-                $message = array('message' => 'User login ok', 'success' => 'true', 'user_id'=>$user_id);
+                $message = array('message' => 'User login ok', 'email'=> $email, 'success' => 'true', 'user_id'=>$user_id);
                 $this->response($message, 200);
             } else {
                 $this->user_model->change_device_id($email, $this->post('device_id'));
-                $message = array('message' => 'Device id changed', 'success' => 'true', 'user_id'=>$user_id);
+                $message = array('message' => 'Device id changed', 'email'=>$email,'success' => 'true', 'user_id'=>$user_id);
                 $this->response($message, 200);
             }
 
