@@ -157,4 +157,50 @@ class User extends REST_Controller
         $this->response($message, 200);
     }
 
+    public function location_post()
+    {
+
+        //log_message('lat', $this->post('lat'));
+        if (!$this->post('email') || !$this->post('lat') || !$this->post('lon') || !$this->post('route') || !$this->post('dir'))  {
+            $message = array('success' => 'false');
+            $this->response($message, 400);
+        }
+
+        $user_id = $this->user_model->get_id_from_email($this->post('email'));
+        if ($user_id) {
+            if ($this->user_model->save_user_location($user_id, $this->post('lat'), $this->post('lon'),$this->post('route'),$this->post('dir'))) {
+                $message = array('message' => 'User location saved', 'success' => 'true');
+                $this->response($message, 200);
+
+            } else {
+                $message = array('error' => 'User data not saved', 'success' => 'false');
+                $this->response($message, 400);
+            }
+
+        } else {
+            $message = array('error' => 'User does not exist', 'success' => 'false');
+            $this->response($message, 400);
+        }
+    }
+
+
+    public function profile_get(){
+        if (!$this->get('email')){
+            $message = array('success' => 'false');
+            $this->response($message, 400);
+        }
+        $user=$this->user_model->get_user_profile($this->get('email'));
+
+        if ($user) {
+            $message = array('user' => $user, 'success' => 'true');
+            $this->response($message, 200);
+        }
+        else {
+            $message = array('error'=>'no user found','success' => 'false');
+            $this->response($message, 200);
+        }
+
+    }
+
+
 }
