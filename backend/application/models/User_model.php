@@ -217,4 +217,20 @@ class User_model extends CI_Model
 
     }
 
+    function save_user_rating($id, $route, $dir, $at, $cmf, $dur, $driver, $comment)
+    {
+        $this->db->insert('user_ratings', array('user_id' => $id, 'route_id' => $route,
+            'direction' => $dir, 'arrival_time' => $at, 'comfort' => $cmf, 'route_duration' => $dur,
+            'driver_rating' => $driver, 'comment' => $comment));
+        //log_message('info', $this->db->last_query());
+        $insert_id = $this->db->insert_id();
+        if (!$insert_id) throw new Exception($this->db->_error_message(), $this->db->_error_number());
+        if ($insert_id > 0) {
+            return $insert_id;
+        } else {
+            return false;
+        }
+
+    }
+
 }
