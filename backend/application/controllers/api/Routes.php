@@ -119,4 +119,19 @@ class Routes extends REST_Controller
             $this->response($message, 200);
         }
     }
+
+    public function buslocation_get(){
+        if (!$this->get('route') || !$this->get('dir')  ) {
+            $message = array('success' => 'false');
+            $this->response($message, 400);
+        }
+        $bus = $this->routes_model->get_bus_location($this->get('route'),$this->get('dir'));
+        if ($bus) {
+            $this->response($bus, 200); // 200 being the HTTP response code
+        } else {
+            $this->response(array('error' => 'Bus could not be found'), 404);
+        }
+
+    }
+
 }

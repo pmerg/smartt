@@ -177,4 +177,12 @@ class Routes_model extends CI_Model
 
     }
 
+    public function get_bus_location($route, $dir)
+    {
+        $query = $this->db->get_where('user_locations', array('routeid' => $route, 'direction' => $dir));
+
+        return $query->result();
+
+    }
+
 }
