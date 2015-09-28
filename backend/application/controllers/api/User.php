@@ -202,5 +202,33 @@ class User extends REST_Controller
 
     }
 
+    public function rating_post()
+    {
+
+        if (!$this->post('email') || !$this->post('route') || !$this->post('dir') || !$this->post('arrival_time') || !$this->post('comfort') || !$this->post('route_duration') || !$this->post('driver_rating'))  {
+            $message = array('success' => 'false');
+            $this->response($message, 400);
+        }
+
+        $user_id = $this->user_model->get_id_from_email($this->post('email'));
+
+        if ($user_id) {
+            $comment=($this->post('comment')) ? $this->post('comment') : "";
+
+            if ($this->user_model->save_user_rating($user_id, $this->post('route'), $this->post('dir'), $this->post('arrival_time'), $this->post('comfort'), $this->post('route_duration'), $this->post('driver_rating'),$comment)) {
+                $message = array('message' => 'User rating saved', 'success' => 'true');
+                $this->response($message, 200);
+
+            } else {
+                $message = array('error' => 'User data not saved', 'success' => 'false');
+                $this->response($message, 400);
+            }
+
+        } else {
+            $message = array('error' => 'User does not exist', 'success' => 'false');
+            $this->response($message, 400);
+        }
+    }
+
 
 }
