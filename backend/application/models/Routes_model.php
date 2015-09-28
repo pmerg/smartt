@@ -154,4 +154,27 @@ class Routes_model extends CI_Model
         return $result;
     }
 
+    public function gettimes($line, $dir, $day)
+    {
+        $sql = "SELECT time(minute) as m
+                FROM bus_times
+                WHERE line_id = " . $line . "
+                        AND day = " . $day . "
+                        AND direction = " . $dir . "
+                ORDER BY m";
+
+
+        $query_response = $this->db->query($sql);
+        log_message('info', $this->db->last_query());
+        $result = $query_response->result();
+
+        if ($query_response->num_rows() < 1) {
+            return NULL;
+        } else {
+            return $result;
+        }
+        return $query->result();
+
+    }
+
 }
