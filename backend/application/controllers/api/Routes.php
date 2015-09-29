@@ -134,4 +134,52 @@ class Routes extends REST_Controller
 
     }
 
+    /**
+     * Gets origin, destination and waypoints from database. Calls google directions api with these params.
+     * Checks if the points are stored in database and if not stores them for a specific route and direction.
+     * Then returns these points to mobile.
+     */
+    function waypoints_get(){
+        //@todo remove waypoints from line 1 which used as example
+        if (!$this->get('route') || !$this->get('dir')  ) {
+            $message = array('success' => 'false');
+            $this->response($message, 400);
+        }
+
+        //get origin, destination and waypoints in order to call google directions api
+        $waypoints=$this->routes_model->get_waypoints_from_route($this->get('route'),$this->get('dir'));
+        //var_dump($waypoints);
+        if ($waypoints['waypoints']) {//if waypoints found
+
+            //implode lat,lon with "|" in order to send to google directions api
+            $way = implode('|', array_map(function($a) {
+                return $a->point;
+            }, $waypoints['waypoints']));
+
+
+            //var_dump($way);
+            //check of waypoints exists in database
+            $waypoints_db=$this->routes_model->check_route_waypoints($this->get('route'), $this->get('dir'));
+
+            //var_dump($waypoints_db);
+            if ($waypoints_db) {
+
+                $points=$waypoints_db;
+
+            }
+            else {
+                $d=directions_call($waypoints['origin']['0']->point, $waypoints['destination']['0']->point, $way,$this->get('route'),$this->get('dir'));
+                //var_dump($d);
+                $points=$this->routes_model->check_route_waypoints($this->get('route'), $this->get('dir'));
+            }
+            $message = array('points' =>  $points, 'success' => 'true');
+            //$message = array('waypoints' =>  $waypoints['waypoints'], 'success' => 'true');
+            $this->response($message, 200);
+        }
+        else { //if no waypoints defined
+            $message = array('error' =>  "no waypoints defined for route and direction", 'success' => 'false');
+            $this->response($message, 200);
+        }
+    }
+
 }
