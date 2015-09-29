@@ -185,4 +185,113 @@ class Routes_model extends CI_Model
 
     }
 
+    public function check_route_waypoints($route, $dir)
+    {
+        $result = array();
+        $this->db->select('lat,lon');
+        $query = $this->db->get_where('route_waypoints', array('route_id' => $route, 'direction' => $dir));
+
+        if ($query->num_rows() < 1) {
+            return false;
+        } else {
+            //return $query->result();
+            foreach ($query->result() as $row) {
+
+                $obj = new stdClass();
+                //$obj->point = $row->waypoints_json;
+                $obj->lat = $row->lat;
+                $obj->lon = $row->lon;
+
+
+                array_push($result, $obj);
+
+            }
+            return $result;
+        }
+
+
+    }
+
+
+    public function save_points_from_google($route, $dir, $points)
+    {
+        //@todo create table to save routeid and lat,lon from returned points from google directions
+        // echo 'lat = ' . $point['0'];
+        // echo 'lon = ' .$point['1'];
+        foreach ($points as $point) {
+
+            $data = array(
+                'route_id' => $route,
+                'direction' => $dir,
+                'waypoints_json' => $point['0'] . ',' . $point['1'],
+                'lat' => $point['0'],
+                'lon' => $point['1'],
+            );
+            // echo '***************' . $point['0'] . '---------' .$point['1'];
+            $this->db->insert('route_waypoints', $data);
+        }
+
+    }
+
+    public function get_waypoints_from_route($route, $dir)
+    {
+        /**
+         * Returns the defined waypoints (flag=1) for a specific route and direction
+         * Moreover in route waypoints, fetches origin(flag=2) and destination(flag=3)
+         * so results are array('waypoints'(array), 'origin', 'destination')
+         */
+        $sql = "select CONCAT_WS(',',bus_stops.lat, bus_stops.lon) as point
+                from bus_stops, line_stops, bus_lines
+                where bus_stops.s_id=line_stops.stop_id  and line_stops.direction_flag = " . $dir . " and line_stops.line_id=bus_lines._id and bus_lines._id='" . $route . "' and line_stops.line_waypoint=1";
+
+
+        $query_response = $this->db->query($sql);
+        $result = $query_response->result();
+        log_message('info', $this->db->last_query());
+
+        if ($query_response->num_rows() < 1) {
+            $data['waypoints'] = null;
+        } else {
+            $data['waypoints'] = $result;
+            //return $data;
+        }
+
+        $sql_o = "select CONCAT_WS(',',bus_stops.lat, bus_stops.lon) as point
+                from bus_stops, line_stops, bus_lines
+                where bus_stops.s_id=line_stops.stop_id  and line_stops.direction_flag = " . $dir . " and line_stops.line_id=bus_lines._id and bus_lines._id='" . $route . "' and line_stops.line_waypoint=2";
+
+
+        $query_response_o = $this->db->query($sql_o);
+        $result_o = $query_response_o->result();
+        log_message('info', $this->db->last_query());
+
+        if ($query_response_o->num_rows() < 1) {
+            $data['origin'] = null;
+        } else {
+            $data['origin'] = $result_o;
+            // return $data;
+        }
+
+
+        $sql_d = "select CONCAT_WS(',',bus_stops.lat, bus_stops.lon) as point
+                from bus_stops, line_stops, bus_lines
+                where bus_stops.s_id=line_stops.stop_id  and line_stops.direction_flag = " . $dir . " and line_stops.line_id=bus_lines._id and bus_lines._id='" . $route . "' and line_stops.line_waypoint=3";
+
+
+        $query_response_d = $this->db->query($sql_d);
+        $result_d = $query_response_d->result();
+        log_message('info', $this->db->last_query());
+
+        if ($query_response_d->num_rows() < 1) {
+            $data['destination'] = null;
+        } else {
+            $data['destination'] = $result_d;
+            // return $data;
+        }
+
+
+        return $data;
+
+    }
+
 }
