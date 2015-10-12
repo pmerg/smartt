@@ -60,7 +60,7 @@ class Routes extends REST_Controller
         }
 
         if (!$this->get('dist')) {
-            $dist = '0.2';
+            $dist = '0.5';
         } else {
             $dist = $this->get('dist');
         }
