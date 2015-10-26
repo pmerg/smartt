@@ -46,3 +46,5 @@ _Περιβάλλον υλοποίησης_: PHP, MySQL, Android
 [Αναλυτική περιγραφή](https://github.com/tsadimas/smartt/blob/master/smartt%20%CE%A0%CE%B1%CF%81%CE%B5%CF%87%CF%8C%CE%BC%CE%B5%CE%BD%CE%B7%20%CE%9B%CE%B5%CE%B9%CF%84%CE%BF%CF%85%CF%81%CE%B3%CE%B9%CE%BA%CF%8C%CF%84%CE%B7%CF%84%CE%B1.pdf)
  
 [Ταυτότητα έργου](https://docs.google.com/document/d/1TPtvyQygjRrULTBwRu97We4UZezd_scr2XT8MS3MzBs/pub)
+
+[Οδηγός Χρήσης] (https://github.com/tsadimas/smartt/blob/master/%CE%BF%CE%B4%CE%B7%CE%B3%CF%8C%CF%82%20%CF%87%CF%81%CE%AE%CF%83%CE%B7%CF%82.pdf)
